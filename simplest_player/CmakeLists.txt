@@ -1,0 +1,30 @@
+cmake_minimum_required(VERSION 3.10)
+
+project(simple_player)
+
+# set(SDL2_DIR /usr/local/Cellar/sdl2/2.0.14_1)
+# set(FFMPEG_DIR /usr/local/Cellar/ffmpeg/4.4_2)
+
+# include_directories(${SDL2_DIR}/include)
+# link_libraries(${SDL2_DIR}/lib)
+
+# include_directories(${FFMPEG_DIR}/include)
+# link_libraries(${FFMPEG_DIR}/lib)
+set (LIB_DIR /usr/local/lib/)
+include_directories(/usr/local/include)
+
+add_executable(${PROJECT_NAME} 
+src/simple_player.cpp
+src/SdlWrapper.cpp
+src/MediaHelper.cpp)
+
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
+target_include_directories(simple_player PRIVATE ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(${PROJECT_NAME}
+${LIB_DIR}libavcodec.dylib
+${LIB_DIR}libavformat.dylib
+${LIB_DIR}libavutil.dylib
+${LIB_DIR}libswscale.dylib
+${LIB_DIR}libSDL2.dylib
+)
+
