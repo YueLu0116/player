@@ -74,25 +74,25 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(ProjectDir)build\$(Configuration)\bin\</OutDir>
     <IntDir>$(ProjectDir)build\$(Configuration)\obj\</IntDir>
-    <IncludePath>$(FFMPEG_HOME)\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(FFMPEG_HOME)\include;$(SFML_SDK)\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(ProjectDir)build\$(Configuration)\bin\</OutDir>
     <IntDir>$(ProjectDir)build\$(Configuration)\obj\</IntDir>
-    <IncludePath>$(FFMPEG_HOME)\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(FFMPEG_HOME)\include;$(SFML_SDK)\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(ProjectDir)build\$(Configuration)\bin\</OutDir>
     <IntDir>$(ProjectDir)build\$(Configuration)\obj\</IntDir>
-    <IncludePath>$(FFMPEG_HOME)\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(FFMPEG_HOME)\include;$(SFML_SDK)\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(ProjectDir)build\$(Configuration)\bin\</OutDir>
     <IntDir>$(ProjectDir)build\$(Configuration)\obj\</IntDir>
-    <IncludePath>$(FFMPEG_HOME)\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(FFMPEG_HOME)\include;$(SFML_SDK)\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -104,13 +104,16 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(FFMPEG_HOME)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(FFMPEG_HOME)\lib;$(SFML_SDK)\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>xcopy $(FFMPEG_HOME)\bin\avcodec-58.dll $(OutDir) /Y
 xcopy $(FFMPEG_HOME)\bin\avformat-58.dll $(OutDir) /Y
 xcopy $(FFMPEG_HOME)\bin\avutil-56.dll $(OutDir) /Y
-xcopy $(FFMPEG_HOME)\bin\swresample-3.dll $(OutDir) /Y</Command>
+xcopy $(FFMPEG_HOME)\bin\swresample-3.dll $(OutDir) /Y
+xcopy $(SFML_SDK)\lib\Debug\sfml-graphics-d-2.dll $(OutDir) /Y
+xcopy $(SFML_SDK)\lib\Debug\sfml-window-d-2.dll $(OutDir) /Y
+xcopy $(SFML_SDK)\lib\Debug\sfml-system-d-2.dll $(OutDir) /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -127,13 +130,16 @@ xcopy $(FFMPEG_HOME)\bin\swresample-3.dll $(OutDir) /Y</Command>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(FFMPEG_HOME)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SFML_SDK)\lib\Release;$(FFMPEG_HOME)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>xcopy $(FFMPEG_HOME)\bin\avcodec-58.dll $(OutDir) /Y
 xcopy $(FFMPEG_HOME)\bin\avformat-58.dll $(OutDir) /Y
 xcopy $(FFMPEG_HOME)\bin\avutil-56.dll $(OutDir) /Y
-xcopy $(FFMPEG_HOME)\bin\swresample-3.dll $(OutDir) /Y</Command>
+xcopy $(FFMPEG_HOME)\bin\swresample-3.dll $(OutDir) /Y
+xcopy $(SFML_SDK)\lib\Release\sfml-graphics-2.dll $(OutDir) /Y
+xcopy $(SFML_SDK)\lib\Release\sfml-window-2.dll $(OutDir) /Y
+xcopy $(SFML_SDK)\lib\Release\sfml-system-2.dll $(OutDir) /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -146,13 +152,16 @@ xcopy $(FFMPEG_HOME)\bin\swresample-3.dll $(OutDir) /Y</Command>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(FFMPEG_HOME)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(FFMPEG_HOME)\lib;$(SFML_SDK)\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>xcopy $(FFMPEG_HOME)\bin\avcodec-58.dll $(OutDir) /Y
 xcopy $(FFMPEG_HOME)\bin\avformat-58.dll $(OutDir) /Y
 xcopy $(FFMPEG_HOME)\bin\avutil-56.dll $(OutDir) /Y
-xcopy $(FFMPEG_HOME)\bin\swresample-3.dll $(OutDir) /Y</Command>
+xcopy $(FFMPEG_HOME)\bin\swresample-3.dll $(OutDir) /Y
+xcopy $(SFML_SDK)\lib\Debug\sfml-graphics-d-2.dll $(OutDir) /Y
+xcopy $(SFML_SDK)\lib\Debug\sfml-window-d-2.dll $(OutDir) /Y
+xcopy $(SFML_SDK)\lib\Debug\sfml-system-d-2.dll $(OutDir) /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -169,13 +178,16 @@ xcopy $(FFMPEG_HOME)\bin\swresample-3.dll $(OutDir) /Y</Command>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(FFMPEG_HOME)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SFML_SDK)\lib\Release;$(FFMPEG_HOME)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>xcopy $(FFMPEG_HOME)\bin\avcodec-58.dll $(OutDir) /Y
 xcopy $(FFMPEG_HOME)\bin\avformat-58.dll $(OutDir) /Y
 xcopy $(FFMPEG_HOME)\bin\avutil-56.dll $(OutDir) /Y
-xcopy $(FFMPEG_HOME)\bin\swresample-3.dll $(OutDir) /Y</Command>
+xcopy $(FFMPEG_HOME)\bin\swresample-3.dll $(OutDir) /Y
+xcopy $(SFML_SDK)\lib\Release\sfml-graphics-2.dll $(OutDir) /Y
+xcopy $(SFML_SDK)\lib\Release\sfml-window-2.dll $(OutDir) /Y
+xcopy $(SFML_SDK)\lib\Release\sfml-system-2.dll $(OutDir) /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

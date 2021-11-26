@@ -3,7 +3,18 @@
 #pragma warning(disable : 4819)
 
 bool MediaHelper::init() {
-	return true;
+    mPframe = av_frame_alloc();
+    if (!mPframe) {
+        std::cout << "[error] ffmpeg: Cannot alloc frame.\n";
+        return false;
+    }
+    mPpacket = av_packet_alloc();
+    if (!mPpacket) {
+        std::cout << "[error] ffmpeg: Cannot initialize packet.\n";
+        return false;
+    }
+
+    return true;
 }
 
 void MediaHelper::unint() {
@@ -15,6 +26,9 @@ void MediaHelper::unint() {
     }
     if (mPframe) {
         av_frame_free(&mPframe);
+    }
+    if (mPpacket) {
+        av_packet_free(&mPpacket);
     }
 }
 
@@ -37,23 +51,26 @@ bool MediaHelper::readStreamInfo() {
     std::cout << "[info] ffmpeg: the total number of streams=" << mPfmtCtx->nb_streams << "\n";
     for (size_t id = 0; id < mPfmtCtx->nb_streams; id++) {
         if (mPfmtCtx->streams[id]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-            mVideoIdx = static_cast<int>(id);
+            mVideoStreamIdx = static_cast<int>(id);
             mVideoCodecId = mPfmtCtx->streams[id]->codecpar->codec_id;
-            std::cout << "[info] ffmpeg: video stream id=" << mVideoIdx << "\n";
+            std::cout << "[info] ffmpeg: video stream id=" << mVideoStreamIdx << "\n";
             std::cout << "[info] ffmpeg: codec_id=" << static_cast<unsigned int>(mVideoCodecId) << "\n";
             break;
         }
     }
-    if (mVideoIdx == -1 || mVideoCodecId == -1) {
+    if (mVideoStreamIdx == -1 || mVideoCodecId == -1) {
         std::cout << "ffmpeg: failed to cannot find video stream\n";
         return false;
     }
     return true;
 }
 
+AVCodecID MediaHelper::originalCodecId() const{
+    return mVideoCodecId;
+}
+
 bool MediaHelper::initDecoder(AVCodecID codecId)
 {
-    av_register_all();
     mPcodec = avcodec_find_decoder(codecId);
     if (!mPcodec) {
         std::cout << "[error] ffmpeg: Cannot find the specific decoder\n";
@@ -71,29 +88,63 @@ bool MediaHelper::initDecoder(AVCodecID codecId)
     return true;
 }
 
-bool MediaHelper::initFrame() {
-    mPframe = av_frame_alloc();
-    if (!mPframe) {
-        std::cout << "[error] ffmpeg: Cannot alloc frame.\n";
+bool MediaHelper::readFrame() {
+    int ret = av_read_frame(mPfmtCtx, mPpacket);
+    if (ret == AVERROR_EOF) {
+        std::cout << "[warning] ffmpeg: End of file\n";
+        return false;
+    }
+    else if (ret != 0) { // other reading errors
+        std::cout << "[error] ffmpeg: Cannot read frames. Error code=" << ret << "\n";
         return false;
     }
     return true;
 }
 
-void MediaHelper::freeFrame() {
-    av_frame_free(&mPframe);
-}
-
-bool MediaHelper::initPacket() {
-    mPpacket = av_packet_alloc();
+bool MediaHelper::isVideoFrame() {
     if (!mPpacket) {
-        std::cout << "[error] ffmpeg: Cannot initialize packet.\n";
+        std::cout << "[error] ffmpeg: mPpacket is null\n";
         return false;
+    }
+    if (mVideoStreamIdx == -1) {
+        std::cout << "[error] ffmpeg: Video stream is empty\n";
+        return false;
+    }
+    return mPpacket->stream_index == mVideoStreamIdx;
+}
+
+bool MediaHelper::decode() {
+    int ret = 0;
+    while (!ret)
+    {
+        ret = avcodec_send_packet(mPcodecCtx, mPpacket);
+        if (ret != 0) {
+            std::cout << "[error] ffmpeg: Cannot send packets\n";
+            return false;
+        }
+
+        ret = avcodec_receive_frame(mPcodecCtx, mPframe);
+        if (ret == AVERROR(EAGAIN)) {
+            ret = 0;
+            std::cout << "[warning] ffmpeg: Not enough data\n";
+            continue;
+        }
+        else if (ret == AVERROR_EOF) {
+            std::cout << "[warning] ffmpeg: End of file\n";
+            return false;
+        }
+        else if (ret != 0) {
+            std::cout << "[error] ffmpeg: Failed to receive frame\n";
+            return false;
+        }
+        // TODO: set to a texture
+        break;
     }
     return true;
 }
 
-void MediaHelper::freePacket() {
-    av_packet_free(&mPpacket);
+void MediaHelper::unrefPacket() {
+    if (!mPpacket) {
+        av_packet_unref(mPpacket);
+    }
 }
-

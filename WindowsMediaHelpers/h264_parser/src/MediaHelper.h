@@ -14,23 +14,25 @@ extern "C" {
 
 class MediaHelper {
 public:
-	MediaHelper() : mVideoIdx(-1), mVideoCodecId(AV_CODEC_ID_NONE){}
+	MediaHelper() : mVideoStreamIdx(-1), mVideoCodecId(AV_CODEC_ID_NONE){}
 	bool init();
 	void unint();
 	int openMediaFile(const std::string &filePath);
 	bool readStreamInfo();
+	AVCodecID originalCodecId() const;
 	bool initDecoder(AVCodecID codecId);
-	bool initFrame();
-	void freeFrame();
-	bool initPacket();
-	void freePacket();
+	bool readFrame();
+	bool isVideoFrame();
+	bool decode();
+	void unrefPacket();
+
 private:
 	AVFormatContext *mPfmtCtx = nullptr;
 	AVCodec *mPcodec = nullptr;
 	AVCodecContext *mPcodecCtx = nullptr;
 	AVFrame* mPframe = nullptr;
 	AVPacket* mPpacket = nullptr;
-	int mVideoIdx;
+	int mVideoStreamIdx;
 	AVCodecID mVideoCodecId;
 };
 
