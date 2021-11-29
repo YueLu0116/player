@@ -1,46 +1,11 @@
 #include <iostream>
 #include <string>
 
-#include <SFML/Graphics.hpp>
-
 #include "MediaHelper.h"
-
-#ifdef _DEBUG 
-#pragma comment(lib, "sfml-graphics-d.lib")
-#pragma comment(lib, "sfml-window-d.lib")
-#pragma comment(lib, "sfml-system-d.lib")
-#endif
-
-#ifndef _DEBUG
-#pragma comment(lib, "sfml-graphics.lib")
-#pragma comment(lib, "sfml-window.lib")
-#pragma comment(lib, "sfml-system.lib")
-#endif
-
+#include "VideoRender.h"
 
 int main()
 {
-    // test sfml
-    sf::RenderWindow window(sf::VideoMode(1920, 1080), "First SFML");
-    sf::CircleShape shape(100.f);
-    shape.setFillColor(sf::Color::Green);
-
-    while (window.isOpen())
-    {
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close();
-        }
-
-        window.clear();
-        window.draw(shape);
-        window.display();
-    }
-
-    return 0;
-
     MediaHelper mediaHelper;
     mediaHelper.init();
 
@@ -66,6 +31,13 @@ int main()
         return -3;
     }
 
+    if (!mediaHelper.initTransformer()) {
+        std::cout << "[error] Failed to initialize transformer\n";
+        mediaHelper.unint();
+        return -4;
+    }
+
+
     int frameCount = 0;
     while (mediaHelper.readFrame()) {
         std::cout << "[info] read " << frameCount++ << "th " << "frame\n";
@@ -75,10 +47,15 @@ int main()
                 mediaHelper.unrefPacket();
                 break;
             }
+            if (!mediaHelper.Yuv2RGB()) {
+                std::cout << "[error] Failed to transform video frames\n";
+                break;
+            }
+
             mediaHelper.unrefPacket();
         }
     }
-
     mediaHelper.unint();
+
     return 0;
 }

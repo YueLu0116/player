@@ -8,6 +8,11 @@ bool MediaHelper::init() {
         std::cout << "[error] ffmpeg: Cannot alloc frame.\n";
         return false;
     }
+    mPRGBframe = av_frame_alloc();
+    if (!mPRGBframe) {
+        std::cout << "[error] ffmpeg: Cannot alloc rgba frame.\n";
+        return false;
+    }
     mPpacket = av_packet_alloc();
     if (!mPpacket) {
         std::cout << "[error] ffmpeg: Cannot initialize packet.\n";
@@ -27,8 +32,17 @@ void MediaHelper::unint() {
     if (mPframe) {
         av_frame_free(&mPframe);
     }
+    if (mPRGBframe) {
+        av_frame_free(&mPRGBframe);
+    }
     if (mPpacket) {
         av_packet_free(&mPpacket);
+    }
+    if (mbufferRGB) {
+        av_free(mbufferRGB);
+    }
+    if (mPswsCtx) {
+        sws_freeContext(mPswsCtx);
     }
 }
 
@@ -53,8 +67,11 @@ bool MediaHelper::readStreamInfo() {
         if (mPfmtCtx->streams[id]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
             mVideoStreamIdx = static_cast<int>(id);
             mVideoCodecId = mPfmtCtx->streams[id]->codecpar->codec_id;
+            mWidth = mPfmtCtx->streams[id]->codecpar->width;
+            mHeight = mPfmtCtx->streams[id]->codecpar->height;
             std::cout << "[info] ffmpeg: video stream id=" << mVideoStreamIdx << "\n";
             std::cout << "[info] ffmpeg: codec_id=" << static_cast<unsigned int>(mVideoCodecId) << "\n";
+            std::cout << "[info] ffmpeg: frame size=" << mWidth << "x" << mHeight << "\n";
             break;
         }
     }
@@ -81,10 +98,16 @@ bool MediaHelper::initDecoder(AVCodecID codecId)
         std::cout << "[error] ffmpeg: Cannot alloc the context for decoder\n";
         return false;
     }
+    int ret = avcodec_parameters_to_context(mPcodecCtx, mPfmtCtx->streams[mVideoStreamIdx]->codecpar);
+    if (ret < 0) {
+        std::cout << "[error] ffmpeg: Cannot trans avcodec parameters to context\n";
+        return false;
+    }
     if (avcodec_open2(mPcodecCtx, mPcodec, nullptr) < 0) {
         std::cout << "[error] ffmpeg: Cannot open the codec\n";
         return false;
     }
+    std::cout << "[info] ffmpeg: Codec context: widthxheight=" << mPcodecCtx->width << "x" << mPcodecCtx->height << "\n";
     return true;
 }
 
@@ -137,7 +160,6 @@ bool MediaHelper::decode() {
             std::cout << "[error] ffmpeg: Failed to receive frame\n";
             return false;
         }
-        // TODO: set to a texture
         break;
     }
     return true;
@@ -147,4 +169,63 @@ void MediaHelper::unrefPacket() {
     if (!mPpacket) {
         av_packet_unref(mPpacket);
     }
+}
+
+bool MediaHelper::initRGBAImageBuffer() {
+    if (!mPcodecCtx) {
+        std::cout << "[error] ffmpeg: Unintialized codec context\n";
+        return false;
+    }
+    if (mWidth < 0 || mHeight < 0) {
+        std::cout << "[error] ffmpeg: Unknown video frams size\n";
+        return false;
+    }
+    int bufSize = av_image_get_buffer_size(AV_PIX_FMT_RGBA, mWidth, mHeight, 1);
+    mbufferRGB = static_cast<uint8_t*>(av_malloc(bufSize));
+    if (!mbufferRGB) {
+        std::cout << "[error] Cannot alloc rgba buffer\n";
+        return false;
+    }
+    std::cout << "[info] ffmpeg: Required RGBA buffer size is " << bufSize << "\n";
+    int ret = av_image_fill_arrays(mPRGBframe->data, mPRGBframe->linesize, mbufferRGB, AV_PIX_FMT_RGBA, mWidth, mHeight, 1);
+    if (ret < 0) {
+        std::cout << "[error] ffmpeg: Failed to av_image_fill_arrays\n";
+        return false;
+    }
+    std::cout << "[info] ffmpeg: the size in bytes required for mbufferRGB is " << ret << "\n";
+    return true;
+}
+
+bool MediaHelper::initSwsCtx() {
+    mPswsCtx = sws_getContext(
+        mWidth,
+        mHeight,
+        mPcodecCtx->pix_fmt,
+        mWidth,
+        mHeight,
+        AV_PIX_FMT_RGBA,
+        SWS_BICUBIC,
+        nullptr,
+        nullptr,
+        nullptr
+        );
+    if (!mPswsCtx) {
+        std::cout << "[error] Cannot initialize sws_context\n";
+        return false;
+    }
+    return true;
+}
+
+bool MediaHelper::initTransformer() {
+    return initRGBAImageBuffer() && initSwsCtx();
+}
+
+bool MediaHelper::Yuv2RGB() {
+    if (!mPswsCtx) {
+        std::cout << "[error] sws_context is null\n";
+        return false;
+    }
+    sws_scale(mPswsCtx, static_cast<const uint8_t* const*>(mPframe->data), mPframe->linesize, 0, 
+        mPcodecCtx->height, mPRGBframe->data, mPRGBframe->linesize);
+    return true;
 }

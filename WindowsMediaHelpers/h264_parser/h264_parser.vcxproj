@@ -111,6 +111,7 @@
 xcopy $(FFMPEG_HOME)\bin\avformat-58.dll $(OutDir) /Y
 xcopy $(FFMPEG_HOME)\bin\avutil-56.dll $(OutDir) /Y
 xcopy $(FFMPEG_HOME)\bin\swresample-3.dll $(OutDir) /Y
+xcopy $(FFMPEG_HOME)\bin\swscale-5.dll $(OutDir) /Y
 xcopy $(SFML_SDK)\lib\Debug\sfml-graphics-d-2.dll $(OutDir) /Y
 xcopy $(SFML_SDK)\lib\Debug\sfml-window-d-2.dll $(OutDir) /Y
 xcopy $(SFML_SDK)\lib\Debug\sfml-system-d-2.dll $(OutDir) /Y</Command>
@@ -137,6 +138,7 @@ xcopy $(SFML_SDK)\lib\Debug\sfml-system-d-2.dll $(OutDir) /Y</Command>
 xcopy $(FFMPEG_HOME)\bin\avformat-58.dll $(OutDir) /Y
 xcopy $(FFMPEG_HOME)\bin\avutil-56.dll $(OutDir) /Y
 xcopy $(FFMPEG_HOME)\bin\swresample-3.dll $(OutDir) /Y
+xcopy $(FFMPEG_HOME)\bin\swscale-5.dll $(OutDir) /Y
 xcopy $(SFML_SDK)\lib\Release\sfml-graphics-2.dll $(OutDir) /Y
 xcopy $(SFML_SDK)\lib\Release\sfml-window-2.dll $(OutDir) /Y
 xcopy $(SFML_SDK)\lib\Release\sfml-system-2.dll $(OutDir) /Y</Command>
@@ -159,6 +161,7 @@ xcopy $(SFML_SDK)\lib\Release\sfml-system-2.dll $(OutDir) /Y</Command>
 xcopy $(FFMPEG_HOME)\bin\avformat-58.dll $(OutDir) /Y
 xcopy $(FFMPEG_HOME)\bin\avutil-56.dll $(OutDir) /Y
 xcopy $(FFMPEG_HOME)\bin\swresample-3.dll $(OutDir) /Y
+xcopy $(FFMPEG_HOME)\bin\swscale-5.dll $(OutDir) /Y
 xcopy $(SFML_SDK)\lib\Debug\sfml-graphics-d-2.dll $(OutDir) /Y
 xcopy $(SFML_SDK)\lib\Debug\sfml-window-d-2.dll $(OutDir) /Y
 xcopy $(SFML_SDK)\lib\Debug\sfml-system-d-2.dll $(OutDir) /Y</Command>
@@ -185,6 +188,7 @@ xcopy $(SFML_SDK)\lib\Debug\sfml-system-d-2.dll $(OutDir) /Y</Command>
 xcopy $(FFMPEG_HOME)\bin\avformat-58.dll $(OutDir) /Y
 xcopy $(FFMPEG_HOME)\bin\avutil-56.dll $(OutDir) /Y
 xcopy $(FFMPEG_HOME)\bin\swresample-3.dll $(OutDir) /Y
+xcopy $(FFMPEG_HOME)\bin\swscale-5.dll $(OutDir) /Y
 xcopy $(SFML_SDK)\lib\Release\sfml-graphics-2.dll $(OutDir) /Y
 xcopy $(SFML_SDK)\lib\Release\sfml-window-2.dll $(OutDir) /Y
 xcopy $(SFML_SDK)\lib\Release\sfml-system-2.dll $(OutDir) /Y</Command>
@@ -193,9 +197,11 @@ xcopy $(SFML_SDK)\lib\Release\sfml-system-2.dll $(OutDir) /Y</Command>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MediaHelper.cpp" />
+    <ClCompile Include="src\VideoRender.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\MediaHelper.h" />
+    <ClInclude Include="src\VideoRender.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

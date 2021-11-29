@@ -21,9 +21,15 @@
     <ClCompile Include="src\MediaHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\VideoRender.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\MediaHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VideoRender.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
