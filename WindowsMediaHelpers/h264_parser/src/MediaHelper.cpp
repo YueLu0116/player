@@ -2,6 +2,30 @@
 
 #pragma warning(disable : 4819)
 
+namespace {
+    void saveFrame(AVFrame* pFrame, int width, int height, int frameId) {
+        FILE* pFile;
+        char szFilename[32];
+        int  y;
+
+        // Open file
+        sprintf(szFilename, "frame%d.rgb", frameId);
+        pFile = fopen(szFilename, "wb");
+        if (pFile == NULL)
+            return;
+
+        // Write header
+        fprintf(pFile, "P6\n%d %d\n255\n", width, height);
+
+        // Write pixel data
+        for (y = 0; y < height; y++)
+            fwrite(pFrame->data[0] + y * pFrame->linesize[0], 1, width * 3, pFile);
+
+        // Close file
+        fclose(pFile);
+    }
+}
+
 bool MediaHelper::init() {
     mPframe = av_frame_alloc();
     if (!mPframe) {
@@ -180,14 +204,14 @@ bool MediaHelper::initRGBAImageBuffer() {
         std::cout << "[error] ffmpeg: Unknown video frams size\n";
         return false;
     }
-    int bufSize = av_image_get_buffer_size(AV_PIX_FMT_RGBA, mWidth, mHeight, 1);
+    int bufSize = av_image_get_buffer_size(AV_PIX_FMT_RGB24, mWidth, mHeight, 1);
     mbufferRGB = static_cast<uint8_t*>(av_malloc(bufSize));
     if (!mbufferRGB) {
         std::cout << "[error] Cannot alloc rgba buffer\n";
         return false;
     }
     std::cout << "[info] ffmpeg: Required RGBA buffer size is " << bufSize << "\n";
-    int ret = av_image_fill_arrays(mPRGBframe->data, mPRGBframe->linesize, mbufferRGB, AV_PIX_FMT_RGBA, mWidth, mHeight, 1);
+    int ret = av_image_fill_arrays(mPRGBframe->data, mPRGBframe->linesize, mbufferRGB, AV_PIX_FMT_RGB24, mWidth, mHeight, 1);
     if (ret < 0) {
         std::cout << "[error] ffmpeg: Failed to av_image_fill_arrays\n";
         return false;
@@ -203,7 +227,7 @@ bool MediaHelper::initSwsCtx() {
         mPcodecCtx->pix_fmt,
         mWidth,
         mHeight,
-        AV_PIX_FMT_RGBA,
+        AV_PIX_FMT_RGB24,
         SWS_BICUBIC,
         nullptr,
         nullptr,
@@ -227,5 +251,17 @@ bool MediaHelper::Yuv2RGB() {
     }
     sws_scale(mPswsCtx, static_cast<const uint8_t* const*>(mPframe->data), mPframe->linesize, 0, 
         mPcodecCtx->height, mPRGBframe->data, mPRGBframe->linesize);
+    // debug
+    //saveFrame(mPRGBframe, mPcodecCtx->width, mPcodecCtx->height, 0);
     return true;
+}
+
+void MediaHelper::dumpRGBData(uint8_t* pData) {
+    for (int i = 0, j = 0; i < mPcodecCtx->width*mPcodecCtx->height*3; i += 3, j += 4)
+    {
+        pData[j + 0] = mPRGBframe->data[0][i + 0];
+        pData[j + 1] = mPRGBframe->data[0][i + 1];
+        pData[j + 2] = mPRGBframe->data[0][i + 2];
+        pData[j + 3] = 255;
+    }
 }

@@ -32,7 +32,9 @@ public:
 	bool Yuv2RGB();
 	int width() const { return mWidth; }
 	int height() const { return mHeight; }
-	uint8_t* frame() { return reinterpret_cast<uint8_t*>(mPRGBframe->data[0]); }
+	//uint8_t* frame() { return reinterpret_cast<uint8_t*>(mPRGBframe->data[0]); }
+	void dumpRGBData(uint8_t* pData);
+
 private:
 	bool initRGBAImageBuffer();
 	bool initSwsCtx();
